@@ -21,7 +21,7 @@ def main():
     # Create a set of agents (exactly four)
     agent_list = [
         MyAgent(),
-        agents.RandomAgent(),
+        agents.PlayerAgent(),
         agents.SimpleAgent(),
         agents.RandomAgent(),
     ]

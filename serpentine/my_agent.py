@@ -8,7 +8,13 @@ class MyAgent(BaseAgent):
 
     def __init__(self, character=characters.Bomber):
         super().__init__(character)
+        self.queue = []
 
     def act(self, obs, action_space):
         # Main event that is being called on every turn.
-        return Action.Stop
+        if not self.queue:      # meaning, if the queue is empty
+            self.queue.append(Action.Right)
+            self.queue.append(Action.Down)
+            self.queue.append(Action.Left)
+            self.queue.append(Action.Up)
+        return self.queue.pop()
