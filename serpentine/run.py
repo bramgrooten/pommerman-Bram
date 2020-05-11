@@ -10,7 +10,7 @@ sys.path.append(directory)
 import pommerman
 from pommerman import agents
 from serpentine.my_agent import MyAgent
-
+from time import sleep
 
 def main():
     '''Simple function to bootstrap a game.  '''
@@ -42,6 +42,9 @@ def main():
 
             # This performs the step and gives back the new information
             state, reward, done, info = env.step(actions)
+
+            # run the game slower. Didn't work unfortunately
+            sleep(2)
 
         print('Episode: {:2d} finished'.format(i_episode))
     env.close()
