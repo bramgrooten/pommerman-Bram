@@ -24,12 +24,8 @@ class Directions:
     @staticmethod
     def reverse(old_direction: Direction) -> Direction:
         """ Returns the reverse direction, left <--> right, up <--> down  """
-        mapping = dict(left="right", right="left", up="down", down="up")
-        for direction in Directions.ALL:
-            if direction.name == mapping[old_direction.name]:
-                return direction
-        return Directions.ZERO
-
+        mapping = dict(left=Directions.RIGHT, right=Directions.LEFT, up=Directions.DOWN, down=Directions.UP)
+        return mapping[old_direction.name]
 
 
 class MyAgent(BaseAgent):
@@ -45,6 +41,9 @@ class MyAgent(BaseAgent):
             my_location = obs['position']
             board = obs['board']
             goal_location = (2, 2)
+
+            if self.can_place_bomb(obs['bomb_life'], obs['ammo'], my_location):
+                self.queue.append(Action.Bomb)
 
             direction = self.can_move_to(board, my_location, goal_location)
             self.queue.append(direction.action)
@@ -98,7 +97,7 @@ class MyAgent(BaseAgent):
 
                 # Check if we have found the location
                 if new_point == my_location:
-                    return reverse(direction)
+                    return Directions.reverse(direction)
 
                 # We have already seen that point
                 if new_point in visited:
@@ -110,6 +109,23 @@ class MyAgent(BaseAgent):
 
             visited.append(point)
         return Directions.ZERO
+
+    def can_place_bomb(self, bomb_life: np.ndarray, ammo: int, my_location: tuple) -> bool:
+        """ Checks if you can place a bomb,
+        if there is no bomb already placed and you have enough ammo, return True.  """
+
+        # Check for bombs
+        if not bomb_life[my_location] == 0:
+            return False
+
+        # Check for ammo
+        if not ammo > 0:
+            return False
+        return True
+
+
+
+
 
 
 

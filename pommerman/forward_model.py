@@ -179,7 +179,8 @@ class ForwardModel(object):
 
             if action == constants.Action.Stop.value:
                 pass
-            elif action == constants.Action.Bomb.value:
+            # line after this has been changed by BramG, 2020-5-18
+            elif constants.Action(action) == constants.Action.Bomb:
                 position = agent.position
                 if not utility.position_is_bomb(curr_bombs, position):
                     bomb = agent.maybe_lay_bomb()
