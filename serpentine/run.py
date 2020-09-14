@@ -14,7 +14,7 @@ from time import sleep
 
 
 def main():
-    '''Simple function to bootstrap a game.  '''
+    """Simple function to bootstrap a game.  """
 
     # Print all possible environments in the Pommerman registry
     print(pommerman.REGISTRY)
@@ -22,21 +22,21 @@ def main():
     # Create a set of agents (exactly four)
     agent_list = [
         MyAgent(),
-        agents.PlayerAgent(),
+        #agents.PlayerAgent(),
         agents.SimpleAgent(),
-        agents.RandomAgent(),
+        #agents.RandomAgent(),
     ]
 
     # Make the "Free-For-All" environment using the agent list
     env = pommerman.make('PommeFFACompetition-v0', agent_list)
 
     # Run the episodes just like OpenAI Gym
-    for i_episode in range(1):
+    for i_episode in range(10):
         state = env.reset()
         done = False
         while not done:
             # This renders the game
-            env.render()
+            # env.render()
 
             # This is where we give an action to the environment
             actions = env.act(state)
@@ -47,7 +47,7 @@ def main():
             # run the game slower
             # sleep(0.1)
 
-        print('Episode: {:2d} finished'.format(i_episode))
+        print(f"Episode: {i_episode + 1} finished, result: {info}")
     env.close()
 
 

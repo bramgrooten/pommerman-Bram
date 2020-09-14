@@ -43,7 +43,7 @@ class MyAgent(BaseAgent):
 
             goal_location = self.move_to_safe_place(obs)
 
-            if self.can_place_bomb(obs['bomb_life'], obs['ammo'], my_location):
+            if self.can_place_bomb(obs['board'], obs['bomb_life'], obs['ammo'], my_location):
                 self.queue.append(Action.Bomb)
 
             direction = self.can_move_to(board, my_location, goal_location)
@@ -111,9 +111,12 @@ class MyAgent(BaseAgent):
             visited.append(point)
         return Directions.ZERO
 
-    def can_place_bomb(self, bomb_life: np.ndarray, ammo: int, my_location: tuple) -> bool:
+    def can_place_bomb(self, board: np.ndarray, bomb_life: np.ndarray, ammo: int, my_location: tuple) -> bool:
         """ Checks if you can place a bomb,
-        if there is no bomb already placed and you have enough ammo, return True.  """
+        if there is no bomb already placed and
+        you have enough ammo and
+        there is a crate next to this location,
+        return True. """
 
         # Check for bombs
         if not bomb_life[my_location] == 0:
@@ -122,6 +125,11 @@ class MyAgent(BaseAgent):
         # Check for ammo
         if not ammo > 0:
             return False
+
+        # Check for crates
+        if self.find_explodables(board, my_location) < 1:
+            return False
+
         return True
 
     def create_danger_map(self, obs: dict) -> np.ndarray:
@@ -152,7 +160,7 @@ class MyAgent(BaseAgent):
 
         return danger_map
 
-    def find_reachable_free_space(self, board: np.ndarray, danger_map: np.ndarray, location: tuple) -> tuple:
+    def find_safe_bomb_place(self, board: np.ndarray, danger_map: np.ndarray, location: tuple) -> tuple:
         """ Returns the location of a safe space that can be reached from the current location.  """
         to_visit = [location]
         visited = []
@@ -177,7 +185,14 @@ class MyAgent(BaseAgent):
 
                 # If we can move there and there is no danger we found a safe haven
                 if passage and not danger:
-                    return new_point
+
+                    # If there is something to blow up go there
+                    if self.find_explodables(board, new_point):
+                        return new_point
+
+                    # It is still a safe place so move there
+                    if danger_map[safest_place] > danger_map[new_point]:
+                        safest_place = new_point
 
                 # If we can move there but it is dangerous, check if it is safer than where we are now.
                 if passage and danger:
@@ -189,7 +204,7 @@ class MyAgent(BaseAgent):
                     to_visit.append(new_point)
 
             visited.append((row, col))
-        return location
+        return safest_place
 
     def move_to_safe_place(self, obs: dict) -> tuple:
         """ Returns a location to which we can safely move.  """
@@ -199,12 +214,35 @@ class MyAgent(BaseAgent):
 
         # Check if our current position is safe, if so we can go/stay there.
         my_location = obs['position']
-        if danger_map[my_location] == 0:
+        if danger_map[my_location] == 0 and self.find_explodables(obs['board'], my_location):
             return my_location
 
         # Find a reasonable safer location
-        safe_position = self.find_reachable_free_space(obs['board'], danger_map, my_location)
+        safe_position = self.find_safe_bomb_place(obs['board'], danger_map, my_location)
         return safe_position
+
+
+    def find_explodables(self, board: np.ndarray, my_location: tuple) -> int:
+        """ Returns the number of crates orthogonally adjacent to our position. """
+
+        explodables = 0
+
+        for direction in Directions.ALL:
+            new_point = tuple(direction.array + np.array(my_location))
+
+            # Check if it is on the board
+            if min(new_point) < 0 or max(new_point) > 7:
+                continue
+
+            # Anything that is not us, a solid wall or a passage can be blown up
+            if board[new_point] not in [Item.Agent0.value, Item.Rigid.value, Item.Passage.value]:
+                explodables += 1
+
+        return explodables
+
+
+
+
 
 
 
