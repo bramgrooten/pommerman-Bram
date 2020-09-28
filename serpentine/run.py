@@ -30,13 +30,15 @@ def main():
     # Make the "Free-For-All" environment using the agent list
     env = pommerman.make('PommeFFACompetition-v0', agent_list)
 
+    nr_games = 1
+
     # Run the episodes just like OpenAI Gym
-    for i_episode in range(10):
+    for episode in range(nr_games):
         state = env.reset()
         done = False
         while not done:
             # This renders the game
-            # env.render()
+            env.render()
 
             # This is where we give an action to the environment
             actions = env.act(state)
@@ -47,7 +49,7 @@ def main():
             # run the game slower
             # sleep(0.1)
 
-        print(f"Episode: {i_episode + 1} finished, result: {info}")
+        print(f"Episode: {episode + 1} finished, result: {info}")
     env.close()
 
 
