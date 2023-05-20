@@ -3,7 +3,7 @@ gym~=0.10.5
 scipy~=1.0
 Pillow>=7.1.0
 ruamel.yaml~=0.15
-Flask~=1.1.1
+Flask
 requests~=2.18
 jsonmerge~=1.5.1
 astroid>=2
